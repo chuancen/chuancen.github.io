@@ -7,10 +7,15 @@ on:
   # 允许在 Actions 标签页手动触发
   workflow_dispatch:
 
+# 允许 GITHUB_TOKEN 进行部署的权限设置
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -18,9 +23,13 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
+      
       - name: Install, build, and upload your site
         uses: withastro/action@v2
-        # 注意：如果你用的是 npm，下面这行可能不需要改；如果用 pnpm 或 yarn，Astro 会自动识别
+        with:
+            # 这里强制指定使用 npm，解决了找不到 lock 文件报错的问题
+            package-manager: npm
+            # 如果你用的是 pnpm 或 yarn，请把上面的 npm 改成 pnpm 或 yarn
 
   deploy:
     needs: build
